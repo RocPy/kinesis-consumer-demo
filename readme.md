@@ -2,6 +2,8 @@
 
 This project contains an example Kinesis consumer application using the [KCL for Python](https://github.com/awslabs/amazon-kinesis-client-python) 
 
+A corresponding producer demo application can be found at https://github.com/RocPy/kinesis-producer-word-putter
+
 The `kclpy_helper.py`, `sample_aggregation_app.py`, and `kinesis_consumer.properties` where taken from the above repository. Note that if you use the example it the sample folder from that repository, make sure you change the same script names, because the pip library `amazon-kclpy` includes them and will prevent your scripts from being run.
 
 - `kinesis_consumer` - The application
