@@ -1,0 +1,33 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+      - Commit_Hash=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - Image_Tag=${Commit_Hash:=latest}
+      - echo Using Dockerfile-Release
+      - cp Dockerfile-Release Dockerfile -f
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image... 
+      - echo Using container repository built from CloudFormation - $Container_Repository_URI
+      - echo COMMENT the . in the docker build specifies that the dockerfile is in the current directory
+      - docker build -t $Container_Repository_URI:latest .
+      - docker tag $Container_Repository_URI:latest $Container_Repository_URI:$Image_Tag
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $Container_Repository_URI:latest
+      - docker push $Container_Repository_URI:$Image_Tag
+      - echo Writing image definitions file...
+      - printf '[{"name":"$s","imageUri":"%s"}]' $Container_Repository_Name $Container_Repository_URI:$Image_Tag > imagedefinitions.json
+artifacts:
+    files: imagedefinitions.json
